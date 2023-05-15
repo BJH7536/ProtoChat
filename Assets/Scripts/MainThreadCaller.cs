@@ -4,8 +4,8 @@ using System;
 
 public class MainThreadCaller : MonoBehaviour
 {
-    private static readonly Queue<Action> pendingActionsQueue = new Queue<Action>();
-    private static MainThreadCaller instance;
+    public static readonly Queue<Action> pendingActionsQueue = new Queue<Action>();
+    public static MainThreadCaller instance;
 
     private void Awake()
     {
