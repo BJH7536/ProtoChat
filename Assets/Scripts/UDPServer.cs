@@ -15,11 +15,11 @@ public class UDPServer : MonoBehaviour
     private UdpClient server;
     private Thread serverThread;
 
-    private List<ClientInfo> clients;
+    private Dictionary<IPEndPoint, string> clients;
 
     public void StartServer()
     {
-        clients = new List<ClientInfo>();
+        clients = new Dictionary<IPEndPoint, string>();
         serverThread = new Thread(StartServerThread);
         serverThread.Start();
     }
@@ -27,11 +27,15 @@ public class UDPServer : MonoBehaviour
     private void StartServerThread()
     {
         int port = GetPort();
-        Debug.Log($"Server Started at port:{port}!");
 
         try
         {
             server = new UdpClient(port);
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
+            {
+                Chat.instance.ShowMessage($"Server Started at port:{port}!");
+                Debug.Log($"Server Started at port:{port}!");
+            });
 
             while (true)
             {
@@ -64,57 +68,73 @@ public class UDPServer : MonoBehaviour
     private void OnIncomingData(byte[] data, IPEndPoint clientEndPoint)
     {
         string receivedMessage = Encoding.UTF8.GetString(data);
+        if (receivedMessage == "<DISCONNECT>")
+        {
+            clients.Remove(clientEndPoint);
+            Debug.Log($"Client disconnected: {clientEndPoint} ({GetClientNameByEndPoint(clientEndPoint, clients)})");
+
+            return;
+        }
         string clientIp = clientEndPoint.Address.ToString();
         string nickname = receivedMessage.Split(':')[0];
         string context = receivedMessage.Split(':')[1];
-        Debug.Log($"Received: {clientIp} ({nickname}) : {context}");
+        Debug.Log($"Server Received: {clientIp} ({nickname}) : {context}");
 
-        byte[] responseData = Encoding.UTF8.GetBytes($"{nickname} : {context}");
-        server.Send(responseData, responseData.Length, clientEndPoint);
-
-        ClientInfo checkExistingClient = null;
-
-        foreach (ClientInfo client in clients)
+        // 클라이언트 추가 또는 업데이트
+        if (clients.ContainsKey(clientEndPoint))
         {
-            if (client.ClientEndPoint.Address == clientEndPoint.Address && client.ClientEndPoint.Port == clientEndPoint.Port)
-            {
-                checkExistingClient = client;
-                break;
-            }
+            // 기존 클라이언트 정보 업데이트
+            clients[clientEndPoint] = nickname;
         }
-
-        if (checkExistingClient == null)
+        else
         {
-            ClientInfo newClient = new ClientInfo(clientEndPoint);
-            newClient.clientName = nickname;
-            clients.Add(newClient);
+            // 새로운 클라이언트 정보 추가
+            clients.Add(clientEndPoint, nickname);
             Debug.Log($"New client added: {clientEndPoint} ({nickname})");
         }
 
-        clients = Broadcast($"{nickname} : {context}", clients);
+        Broadcast($"{nickname} : {context}", clients);
+
 
     }
 
-    private List<ClientInfo> Broadcast(string data, List<ClientInfo> cls)
+    private void Broadcast(string data, Dictionary<IPEndPoint, string> cls)
     {
         byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-        List<ClientInfo> updatedClients = new();
+        List<IPEndPoint> disconnectedClients = new List<IPEndPoint>();
 
-        foreach (ClientInfo client in cls)
+        foreach (IPEndPoint clientEndPoint in cls.Keys)
         {
             try
             {
-            server.Send(dataBytes, dataBytes.Length, client.ClientEndPoint);
-            Debug.Log($"server sended to {client.ClientEndPoint.Address} : {client.ClientEndPoint.Port}");
-            updatedClients.Add(client);
+                server.Send(dataBytes, dataBytes.Length, clientEndPoint);
+                Debug.Log($"server send message to {clientEndPoint}");
             }
             catch (Exception)
             {
-                // 데이터를 보낼 수 없는 클라이언트는 리스트에서 제외.
+                // 데이터를 보낼 수 없는 클라이언트는 딕셔너리에서 제외.
+                disconnectedClients.Add(clientEndPoint);
             }
         }
 
-        return updatedClients;
+        foreach (IPEndPoint client in disconnectedClients)
+        {
+            clients.Remove(client);
+            Debug.Log($"Client disconnected: {client} ({GetClientNameByEndPoint(client, clients)})");
+        }
+    }
+
+    public string GetClientNameByEndPoint(IPEndPoint endPoint, Dictionary<IPEndPoint, string> clients)
+    {
+        string nickname = null;
+
+        if (clients.TryGetValue(endPoint, out nickname))
+        {
+            return nickname;
+        }
+
+        // 해당 endPoint에 해당하는 클라이언트가 없는 경우
+        return "Unknown";
     }
 
     void OnApplicationQuit()
@@ -128,6 +148,16 @@ public class UDPServer : MonoBehaviour
             server.Close();
         if (serverThread != null)
             serverThread.Abort();
+    }
+
+    public void debug_showClients()
+    {
+        Debug.Log("--------------------------");
+        foreach(var c in clients)
+        {
+            Debug.Log($"{c.Key} | {c.Value}");
+        }
+        Debug.Log("--------------------------");
     }
 }
 
