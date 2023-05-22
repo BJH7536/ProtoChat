@@ -17,7 +17,8 @@ public class Define
     {
         Init,
         Loading,
-        Lobby,
+        ServerLobby,
+        ClientLobby,
     }
 
     public enum Role
