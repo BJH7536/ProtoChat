@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Mono.Cecil;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
+using static Define;
 
 public class UI_Init : UI_Scene
 {
@@ -18,16 +23,20 @@ public class UI_Init : UI_Scene
     // 2. Client를 정했으면
     // 넘어갈 때 서버 IP와 Port를 입력받아서 해당 서버를 연결 할 수 있게끔
 
-
     enum Buttons
     {
-
+        SubmitBtn,
     }
+
+    public GameObject Selection4Role;
+    public GameObject Selection4Protocol;
+
+    public Role role;
+    public Protocol protocol;
 
     private void Start()
     {
-        
-
+        Init();
     }
 
     public override bool Init()
@@ -35,9 +44,39 @@ public class UI_Init : UI_Scene
         if (base.Init() == false)
             return false;
 
+        BindButton(typeof(Buttons));
+        GetButton((int)Buttons.SubmitBtn).gameObject.BindEvent(submit);
+
         return true;
+    }
+
+    public Role findRole()
+    {
+        if (Selection4Role.transform.Find("Server").GetComponent<Toggle>().isOn)
+            return Role.Server;
+        else
+            return Role.Client;
+    }
+
+    public Protocol findProtocol()
+    {
+        if (Selection4Protocol.transform.Find("TCP").GetComponent<Toggle>().isOn)
+            return Protocol.TCP;
+        else
+            return Protocol.UDP;
 
     }
 
+    public void submit()        // 서버/클라이언트 와 TCP/UDP를 결정한 후 버튼
+    {
+        role = findRole();
+        protocol = findProtocol();
+        Debug.Log("Submitted!---------------");
+        Debug.Log($"Role : {role}");
+        Debug.Log($"Protocol : {protocol}");
+        Debug.Log("-------------------------");
+
+        Managers.Scene.ChangeScene(Define.Scene.Lobby);
+    }
 
 }

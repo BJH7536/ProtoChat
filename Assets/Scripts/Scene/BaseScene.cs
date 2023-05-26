@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BaseScene : MonoBehaviour
 {
-    public Define.Scene SceneType = Define.Scene.Init;
+    public Define.Scene Scene = Define.Scene.Init;
 
     protected bool _init = false;
 
@@ -25,5 +25,6 @@ public class BaseScene : MonoBehaviour
 
         return true;
     }
+    public virtual void Clear() { }
 
 }

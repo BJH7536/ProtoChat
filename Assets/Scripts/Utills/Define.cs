@@ -16,9 +16,7 @@ public class Define
     public enum Scene
     {
         Init,
-        Loading,
-        ServerLobby,
-        ClientLobby,
+        Lobby,
     }
 
     public enum Role

@@ -10,7 +10,7 @@ public class InitScene : BaseScene
         if (base.Init() == false)
             return false;
 
-        SceneType = Define.Scene.Init;
+        Scene = Define.Scene.Init;
 
         Debug.Log("Init");
         return true;

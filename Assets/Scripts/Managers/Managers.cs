@@ -14,9 +14,11 @@ public class Managers : MonoBehaviour
 
     private static ResourceManager s_resourceManager = new ResourceManager();
     private static UIManager s_uiManager = new UIManager();
+    private static SceneManagerEx s_sceneManager = new SceneManagerEx();
 
     public static ResourceManager Resource { get { Init(); return s_resourceManager; } }
     public static UIManager UI { get { Init(); return s_uiManager; } }
+    public static SceneManagerEx Scene { get { Init(); return s_sceneManager; } }
 
     private void Start()
     {

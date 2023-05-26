@@ -55,7 +55,7 @@ public class UDPServer : MonoBehaviour
         int port = 7777;
 
         AutoResetEvent autoResetEvent = new AutoResetEvent(false);
-        MainThreadCaller.EnqueueAction(() =>
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
         {
             port = PortInput.text == "" ? 7777 : int.Parse(PortInput.text);
             autoResetEvent.Set();
