@@ -21,12 +21,14 @@ public class Define
 
     public enum Role
     {
+        unknown,
         Server,
         Client,
     }
 
     public enum Protocol
     {
+        unknown,
         TCP,
         UDP,
     }

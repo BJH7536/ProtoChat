@@ -9,7 +9,7 @@ using static Define;
 
 public class Managers : MonoBehaviour
 {
-    public static Managers s_instance = null;
+    private static Managers s_instance = null;
     public static Managers Instance { get { return s_instance; } }
 
     private static ResourceManager s_resourceManager = new ResourceManager();
@@ -20,8 +20,13 @@ public class Managers : MonoBehaviour
     public static UIManager UI { get { Init(); return s_uiManager; } }
     public static SceneManagerEx Scene { get { Init(); return s_sceneManager; } }
 
+    public Define.Role role;
+    public Define.Protocol protocol;
+
     private void Start()
     {
+        role = Define.Role.unknown;
+        protocol = Define.Protocol.unknown;
         Init();
     }
 

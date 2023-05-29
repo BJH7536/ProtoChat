@@ -69,8 +69,9 @@ public class UI_Init : UI_Scene
 
     public void submit()        // 서버/클라이언트 와 TCP/UDP를 결정한 후 버튼
     {
-        role = findRole();
-        protocol = findProtocol();
+        Managers.Instance.role = role = findRole();
+        Managers.Instance.protocol = protocol = findProtocol();
+
         Debug.Log("Submitted!---------------");
         Debug.Log($"Role : {role}");
         Debug.Log($"Protocol : {protocol}");
