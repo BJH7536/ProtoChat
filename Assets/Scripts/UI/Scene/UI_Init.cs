@@ -72,10 +72,10 @@ public class UI_Init : UI_Scene
         Managers.Instance.role = role = findRole();
         Managers.Instance.protocol = protocol = findProtocol();
 
-        Debug.Log("Submitted!---------------");
-        Debug.Log($"Role : {role}");
-        Debug.Log($"Protocol : {protocol}");
-        Debug.Log("-------------------------");
+        //Debug.Log("Submitted!---------------");
+        //Debug.Log($"Role : {role}");
+        //Debug.Log($"Protocol : {protocol}");
+        //Debug.Log("-------------------------");
 
         Managers.Scene.ChangeScene(Define.Scene.Lobby);
     }

@@ -2191,6 +2191,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db7a5d28dd6942347a5df8fb8ca94be2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TCPServer: {fileID: 486593911}
+  TCPClient: {fileID: 1765487131}
+  UDPServer: {fileID: 1538249306}
+  UDPClient: {fileID: 2077857914}
 --- !u!1 &1538249306
 GameObject:
   m_ObjectHideFlags: 0
