@@ -11,8 +11,10 @@ public class TCPServer : MonoBehaviour
 {
     public InputField PortInput;
 
-    List<ServerClient> tcpClients;
-    List<ServerClient> tcpDisconnectClients;
+    List<ServerClient> tcpClients;                          // 연결된 모든 클라이언트
+    List<ServerClient> tcpDisconnectClients;                // 연결이 끊긴 클라이언트
+
+    List<Room> Rooms;                                       // 모든 Room들
 
     TcpListener tcpServer;     // 실제 서버?
     bool serverStarted;     // 서버가 열리면 True
@@ -20,8 +22,9 @@ public class TCPServer : MonoBehaviour
 	public void ServerCreate()
 	{
         tcpClients = new List<ServerClient>();
-        tcpDisconnectClients = new List<ServerClient>();      // 초기 설정
-        
+        tcpDisconnectClients = new List<ServerClient>();    // 초기 설정
+        Rooms = new List<Room>();                           // 모든 Room들
+
         try             // 디버그를 위한 try-catch문
         {
             int port = PortInput.text == "" ? 7777 : int.Parse(PortInput.text);     // port 안정했으면 임의로 7777을 쓴다
@@ -136,9 +139,10 @@ public class TCPServer : MonoBehaviour
             }
         }
     }
+
 }
 
-public class ServerClient
+public class ServerClient           // 서버에서 클라이언트에 대한 정보를 갖기위한 클래스
 {
     public TcpClient tcp;           // tcp 통신이라서 tcpclient
     public string clientName;       // 클라이언트 이름
@@ -148,4 +152,62 @@ public class ServerClient
         clientName = "Guest";                       // 초기 이름 Guest
         tcp = clientSocket;                         // tcp에는 들어온 소켓을 넣어준다
     }
+}
+
+public class Room                   // 서버에서 Room에 대한 정보를 유지하기 위한 클래스
+{
+    public string roomName;                     // Room 이름
+    public List<ServerClient> clientsInRoom;    // 한 Room 안에 있는 Client들에 대한 리스트
+    public int currentMemNum;
+    public int MaxMemNum;
+
+    public Room(string Name, int MaxNum)
+    {
+        roomName = Name;
+        MaxMemNum = MaxNum;
+        clientsInRoom = new List<ServerClient>();
+    }
+    public Room(string Name, int MaxNum, List<ServerClient> clients)
+    {
+        roomName = Name;
+        MaxMemNum = MaxNum;
+        clientsInRoom = clients;
+    }
+
+    public void                 addMember(ServerClient client)
+    {
+        if (currentMemNum < MaxMemNum)
+        {
+            clientsInRoom.Add(client);
+            currentMemNum++;
+        }
+        else
+        {
+            Debug.Log($"{roomName} 에 현재인원이 최대, 더이상 수용할 수 없음");
+        }
+    }
+    public void                 removeMember(ServerClient client)
+    {
+        if (currentMemNum == 0)
+        {
+            Debug.Log($"{roomName}에 현재인원이 아무도 없음, 제거할 수 없음");
+            return;
+        }
+        clientsInRoom.Remove(client);
+        currentMemNum--;
+    }
+    public List<ServerClient>   getMembers()
+    {
+        return clientsInRoom;
+    }
+    public void                 removeAllMember()
+    {
+        clientsInRoom.Clear();
+    }
+
+    ~Room()     //소멸자
+    {
+        removeAllMember();
+    }
+
 }
