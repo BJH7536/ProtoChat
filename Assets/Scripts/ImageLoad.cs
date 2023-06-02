@@ -7,7 +7,7 @@ using Ookii.Dialogs;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using UnityEngine.UI;
 
-public class ImageLoadtest : MonoBehaviour
+public class ImageLoad : MonoBehaviour
 {
     VistaOpenFileDialog OpenDialog;
     Stream openStream;
