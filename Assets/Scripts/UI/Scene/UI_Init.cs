@@ -34,11 +34,6 @@ public class UI_Init : UI_Scene
     public Role role;
     public Protocol protocol;
 
-    private void Start()
-    {
-        Init();
-    }
-
     public override bool Init()
     {
         if (base.Init() == false)
@@ -77,7 +72,10 @@ public class UI_Init : UI_Scene
         //Debug.Log($"Protocol : {protocol}");
         //Debug.Log("-------------------------");
 
-        Managers.Scene.ChangeScene(Define.Scene.Lobby);
+        if(role == Define.Role.Server)
+            Managers.Scene.ChangeScene(Define.Scene.IntToServer);
+        else
+            Managers.Scene.ChangeScene(Define.Scene.IntToClient);
     }
 
 }

@@ -22,6 +22,8 @@ public class Managers : MonoBehaviour
 
     public Define.Role role;
     public Define.Protocol protocol;
+    public string IPaddress;
+    public string Port;
 
     private void Start()
     {

@@ -48,6 +48,8 @@ public abstract class UI_Base : MonoBehaviour
     protected void BindImage(Type type) { Bind<Image>(type); }
     protected void BindText(Type type) { Bind<TextMeshProUGUI>(type); }
     protected void BindButton(Type type) { Bind<Button>(type); }
+    //
+    protected void BindInputField(Type type) { Bind<InputField>(type); }
 
     protected T Get<T>(int idx) where T : UnityEngine.Object
     {
@@ -62,6 +64,8 @@ public abstract class UI_Base : MonoBehaviour
     protected TextMeshProUGUI GetText(int idx) { return Get<TextMeshProUGUI>(idx); }
     protected Button GetButton(int idx) { return Get<Button>(idx); }
     protected Image GetImage(int idx) { return Get<Image>(idx); }
+    //
+    protected InputField GetInputField(int idx) { return Get<InputField>(idx); }
 
     public static void BindEvent(GameObject go, Action action, Define.UIEvent type = Define.UIEvent.Click)
     {

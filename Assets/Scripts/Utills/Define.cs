@@ -16,6 +16,8 @@ public class Define
     public enum Scene
     {
         Init,
+        IntToClient,
+        IntToServer,
         Lobby,
     }
 
