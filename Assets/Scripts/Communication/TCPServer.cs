@@ -6,10 +6,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.IO;
+using TMPro;
 
 public class TCPServer : MonoBehaviour
 {
-    public InputField PortInput;
+    //public InputField PortInput;
+    public GameObject UI_Lobby;
+    string ServerPort;
 
     List<ServerClient> tcpClients;                          // 연결된 모든 클라이언트
     List<ServerClient> tcpDisconnectClients;                // 연결이 끊긴 클라이언트
@@ -19,25 +22,28 @@ public class TCPServer : MonoBehaviour
     TcpListener tcpServer;     // 실제 서버?
     bool serverStarted;     // 서버가 열리면 True
 
+
+
 	public void ServerCreate()
 	{
         tcpClients = new List<ServerClient>();
         tcpDisconnectClients = new List<ServerClient>();    // 초기 설정
         Rooms = new List<Room>();                           // 모든 Room들
+        ServerPort = Managers.Instance.Port.Trim();
 
         try             // 디버그를 위한 try-catch문
         {
-            int port = PortInput.text == "" ? 7777 : int.Parse(PortInput.text);     // port 안정했으면 임의로 7777을 쓴다
+            int port = ServerPort == "" ? 7777 : int.Parse(ServerPort);     // port 안정했으면 임의로 7777을 쓴다
             tcpServer = new TcpListener(IPAddress.Any, port);                          // 새로운 Listener 소켓을 생성 (IPAddress.Any : 자기 컴퓨터의 IP 주소)
             tcpServer.Start();                                                         // 서버가 열리면 Bind하고
 
             StartListening();                                                       // Listen 시작
-            serverStarted = true;                                                   
-            Chat.instance.ShowMessage($"서버가 {port}에서 시작되었습니다.");          // 알림
+            serverStarted = true;
+            ShowNoti($"서버가 {port}에서 시작되었습니다.");          // 알림
         }
         catch (Exception e) 
         {
-            Chat.instance.ShowMessage($"Socket error: {e.Message}");
+            ShowNoti($"Socket error: {e.Message}");
         }
 	}
 
@@ -135,9 +141,16 @@ public class TCPServer : MonoBehaviour
             }
             catch (Exception e) 
             {
-                Chat.instance.ShowMessage($"쓰기 에러 : {e.Message}를 클라이언트에게 {c.clientName}");
+                ShowNoti($"쓰기 에러 : {e.Message}를 클라이언트에게 {c.clientName}");
             }
         }
+    }
+
+    public void ShowNoti(string context)
+    {
+        GameObject noti = Managers.Resource.Instantiate("UI/Notification",UI_Lobby.transform);
+        if(context != "")
+            noti.GetComponent<Notification>().context = context;
     }
 
 }

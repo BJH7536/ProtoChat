@@ -11,6 +11,7 @@ public class TCPClient : MonoBehaviour
 	public InputField IPInput, PortInput, NickInput;
 	string clientName;
 
+
     bool socketReady;			// socket이 준비되었는지
     TcpClient tcpSocket;			// 서버와 통신할 TcpClient
     NetworkStream stream;

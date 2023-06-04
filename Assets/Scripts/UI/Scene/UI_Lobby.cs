@@ -15,7 +15,8 @@ public class UI_Lobby : UI_Scene
 
     enum Buttons
     {
-        
+        RefreshRoomsBtn,
+        CreateRoomBtn,
     }
 
     private void Start()
@@ -29,14 +30,16 @@ public class UI_Lobby : UI_Scene
             return false;
 
         BindButton(typeof(Buttons));
-        //GetButton((int)Buttons.SubmitBtn).gameObject.BindEvent(submit);
+        GetButton((int)Buttons.RefreshRoomsBtn).gameObject.BindEvent(refreshRooms);
 
+        if (Managers.Instance.role == Role.Server)                          // 클라이언트 모드일때만 Room생성 요청 가능
+            GetButton((int)Buttons.CreateRoomBtn).gameObject.SetActive(false);
         //Debug.Log("Load-------------------");
         //Debug.Log(Managers.Instance.role);
         //Debug.Log(Managers.Instance.protocol);
         //Debug.Log("-----------------------");
 
-        #region 프로토콜과 역할에 따라 오브젝트 정리
+        #region 프로토콜과 역할에 따라 통신 오브젝트 정리
         if (Managers.Instance.role == Role.Client)
         {
             TCPServer.SetActive(false);
@@ -57,4 +60,8 @@ public class UI_Lobby : UI_Scene
         return true;
     }
 
+    public void refreshRooms()
+    {
+
+    }
 }

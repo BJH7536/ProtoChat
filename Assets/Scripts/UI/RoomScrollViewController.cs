@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class ScrollViewController : MonoBehaviour
+public class RoomScrollViewController : MonoBehaviour
 {
     private ScrollRect ScrollRect;
 
@@ -19,12 +19,7 @@ public class ScrollViewController : MonoBehaviour
         ScrollRect = GetComponent<ScrollRect>();
     }
 
-    void Update()
-    {
-        
-    }
-
-    public void addNewUiObject()
+    public void AddNewUiObject()
     {
         RectTransform newUi = Instantiate(uiPrefab, ScrollRect.content).GetComponent<RectTransform>();
         uiObjects.Add(newUi);
@@ -39,5 +34,15 @@ public class ScrollViewController : MonoBehaviour
 
         ScrollRect.content.sizeDelta = new Vector2(ScrollRect.content.sizeDelta.x, y);
 
+    }
+
+    public void ClearAllObjects()
+    {
+        foreach(RectTransform uiObject in uiObjects)
+        {
+            Destroy(uiObject.gameObject);
+        }
+
+        uiObjects = new List<RectTransform>();
     }
 }
