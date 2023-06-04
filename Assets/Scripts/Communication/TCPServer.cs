@@ -13,6 +13,7 @@ public class TCPServer : MonoBehaviour
     //public InputField PortInput;
     public GameObject UI_Lobby;
     string ServerPort;
+    
 
     List<ServerClient> tcpClients;                          // 연결된 모든 클라이언트
     List<ServerClient> tcpDisconnectClients;                // 연결이 끊긴 클라이언트
@@ -125,6 +126,21 @@ public class TCPServer : MonoBehaviour
             Broadcast($"{c.clientName}이(가) 연결되었습니다", tcpClients);
             return;
         }
+        else if (data.StartsWith("&CREATEROOM|"))           // CREATEROOM 요청이 들어올 때 방 추가.
+        {
+            string[] roomData = data.Split('|');
+            if (roomData.Length == 3)
+            {
+                string roomName = roomData[1];
+                int maxPlayers;
+                if (int.TryParse(roomData[2], out maxPlayers))
+                {
+                    CreateRoom(roomName, maxPlayers, c);
+                    return;
+                }
+            }
+        }
+
 
         Broadcast($"{c.clientName} : {data}", tcpClients);     // client c가 보낸 data를 모든 client들에게 broadcast한다
     }
@@ -144,6 +160,23 @@ public class TCPServer : MonoBehaviour
                 ShowNoti($"쓰기 에러 : {e.Message}를 클라이언트에게 {c.clientName}");
             }
         }
+    }
+
+    void CreateRoom(string roomName, int maxPlayers, ServerClient client)
+    {
+        // 이미 같은 이름의 방이 존재하는지 확인
+        if (Rooms.Exists(r => r.roomName == roomName))
+        {
+            ShowNoti($"'{roomName}'이라는 이름의 방이 이미 존재합니다.");
+            return;
+        }
+
+        // 새로운 Room 생성
+        Room room = new Room(roomName, maxPlayers);
+        room.addMember(client);
+        Rooms.Add(room);
+
+        ShowNoti($"'{roomName}' 방이 생성되었습니다.");
     }
 
     public void ShowNoti(string context)

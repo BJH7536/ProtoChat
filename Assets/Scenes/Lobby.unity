@@ -1008,6 +1008,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 313191273}
   m_CullTransparentMesh: 1
+--- !u!1 &361681797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 361681798}
+  m_Layer: 0
+  m_Name: "\uD074\uB77C\uC774\uC5B8\uD2B8\uC5D0\uC11C \uC11C\uBC84\uC5D0 reloadRooms
+    \uC694\uCCAD (\uC0C8\uB85C\uACE0\uCE68) \uC744 \uBCF4\uB0B4\uBA74,  \uC11C\uBC84\uB294
+    \uC11C\uBC84\uAC00 \uAC00\uC9C0\uACE0 \uC788\uB294 \uBAA8\uB4E0 Room\uB4E4\uC5D0
+    \uB300\uD55C List\uB97C \uBCF4\uB0B8\uB2E4.  (\uAC1C\uBCC4 Room\uC5D0 \uB300\uD55C
+    \uC815\uBCF4\uB97C toString()\uAC19\uC740\uAC78\uB85C \uC2A4\uD2B8\uB9C1\uD615\uD0DC\uB85C
+    \uBCC0\uD658\uD574\uC11C \uC804\uC1A1)  \uADF8\uB7EC\uBA74 \uD074\uB77C\uC774\uC5B8\uD2B8\uB294
+    \uC774\uB97C \uBC1B\uC544\uC11C \uAC01 Room\uD558\uB098\uC5D0 \uC2E4\uC81C RoomImg\uB97C
+    \uC2A4\uD06C\uB864\uC5D0 \uB744\uC6B0\uACE0,  \uD31D\uC5C5 \uBC14\uC778\uB529\uB3C4
+    \uD558\uACE0, "
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &361681798
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 361681797}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &377362218
 GameObject:
   m_ObjectHideFlags: 0
@@ -4032,6 +4071,7 @@ MonoBehaviour:
   IPInput: {fileID: 0}
   PortInput: {fileID: 0}
   NickInput: {fileID: 0}
+  UI_Lobby: {fileID: 1475291520}
 --- !u!4 &1765487133
 Transform:
   m_ObjectHideFlags: 0

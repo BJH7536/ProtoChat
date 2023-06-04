@@ -10,6 +10,7 @@ public class TCPClient : MonoBehaviour
 {
 	public InputField IPInput, PortInput, NickInput;
 	string clientName;
+    public GameObject UI_Lobby;
 
 
     bool socketReady;			// socket이 준비되었는지
@@ -38,7 +39,7 @@ public class TCPClient : MonoBehaviour
 		}
 		catch (Exception e) 
 		{
-			Chat.instance.ShowMessage($"소켓에러 : {e.Message}");
+            ShowNoti($"소켓에러 : {e.Message}");
 		}
 	}
 
@@ -85,7 +86,16 @@ public class TCPClient : MonoBehaviour
 		Send(message);
 	}
 
-	void OnApplicationQuit()
+    public void SendCreateRoomReq(string roomName, int maxPlayers)
+    {
+        // 요청 메시지 생성
+        string message = $"&CREATEROOM|{roomName}|{maxPlayers}";
+
+        // 메시지 전송
+        Send(message);
+    }
+
+    void OnApplicationQuit()
 	{
 		CloseSocket();
 	}
@@ -99,4 +109,11 @@ public class TCPClient : MonoBehaviour
         tcpSocket.Close();
 		socketReady = false;
 	}
+
+    public void ShowNoti(string context)
+    {
+        GameObject noti = Managers.Resource.Instantiate("UI/Notification", UI_Lobby.transform);
+        if (context != "")
+            noti.GetComponent<Notification>().context = context;
+    }
 }
