@@ -10,10 +10,14 @@ using TMPro;
 
 public class TCPServer : MonoBehaviour
 {
+    public static TCPServer instance;
+    void Awake() => instance = this;
+
+    static ServerClient ServerInternalClient;
+
     //public InputField PortInput;
     public GameObject UI_Lobby;
     string ServerPort;
-    
 
     List<ServerClient> tcpClients;                          // 연결된 모든 클라이언트
     List<ServerClient> tcpDisconnectClients;                // 연결이 끊긴 클라이언트
@@ -23,14 +27,15 @@ public class TCPServer : MonoBehaviour
     TcpListener tcpServer;     // 실제 서버?
     bool serverStarted;     // 서버가 열리면 True
 
-
-
-	public void ServerCreate()
+    public void ServerCreate()
 	{
         tcpClients = new List<ServerClient>();
         tcpDisconnectClients = new List<ServerClient>();    // 초기 설정
         Rooms = new List<Room>();                           // 모든 Room들
         ServerPort = Managers.Instance.Port.Trim();
+
+        ServerInternalClient = new ServerClient(TCPClient.instance.tcpSocket);
+        ServerInternalClient.clientName = Managers.Instance.ClientName;
 
         try             // 디버그를 위한 try-catch문
         {
@@ -120,7 +125,7 @@ public class TCPServer : MonoBehaviour
 
     void OnIncomingData(ServerClient c, string data)
     {
-        if (data.Contains("&NAME"))                         // 수신한 데이터가 &NAME으로 시작한다면, (= 연결 성공 메세지)
+        if (data.StartsWith("&NAME"))                         // 수신한 데이터가 &NAME으로 시작한다면, (= 연결 성공 메세지)
         {
             c.clientName = data.Split('|')[1];
             Broadcast($"{c.clientName}이(가) 연결되었습니다", tcpClients);
@@ -140,7 +145,20 @@ public class TCPServer : MonoBehaviour
                 }
             }
         }
-
+        else if (data == "&ROOMLIST")                       // 클라이언트가 채팅방 목록 요청을 보냈을 때
+        {
+            SendRoomList(c);                                // 채팅방 목록 정보를 해당 클라이언트에게 전송
+            return;
+        }
+        else if (data.StartsWith("&CHAT"))                  // 클라이언트가 채팅 메시지를 보냈을 때
+        {
+            Room clientRoom = GetClientRoom(c);
+            if (clientRoom != null)
+            {
+                BroadcastToRoom($"{c.clientName} : {data.Substring(6)}", clientRoom);
+            }
+            return;
+        }
 
         Broadcast($"{c.clientName} : {data}", tcpClients);     // client c가 보낸 data를 모든 client들에게 broadcast한다
     }
@@ -162,6 +180,23 @@ public class TCPServer : MonoBehaviour
         }
     }
 
+    Room GetClientRoom(ServerClient client)
+    {
+        foreach (Room room in Rooms)
+        {
+            if (room.getMembers().Contains(client))
+            {
+                return room;
+            }
+        }
+        return null;
+    }
+
+    void BroadcastToRoom(string data, Room room)
+    {
+        Broadcast(data, room.getMembers());
+    }
+
     void CreateRoom(string roomName, int maxPlayers, ServerClient client)
     {
         // 이미 같은 이름의 방이 존재하는지 확인
@@ -179,13 +214,46 @@ public class TCPServer : MonoBehaviour
         ShowNoti($"'{roomName}' 방이 생성되었습니다.");
     }
 
+    void SendRoomList(ServerClient client)
+    {
+        string roomListData = "%ROOMLIST|"; // 채팅방 목록 데이터를 담을 문자열 변수 초기화
+
+        // 모든 채팅방에 대한 정보를 문자열에 추가
+        foreach (Room room in Rooms)
+        {
+            roomListData += $"{room.roomName}|{room.currentMemNum}|{room.MaxMemNum}|";
+
+            // 채팅방 구성원 정보를 추가
+            foreach (ServerClient member in room.getMembers())
+            {
+                roomListData += $"{member.clientName},";
+            }
+
+            // 마지막 구분자 제거
+            if (room.getMembers().Count > 0)
+                roomListData = roomListData.Remove(roomListData.Length - 1);
+
+            roomListData += "|";
+        }
+
+        // 마지막 구분자 제거
+        if (Rooms.Count > 0)
+            roomListData = roomListData.Remove(roomListData.Length - 1);
+
+        // 채팅방 목록 데이터를 클라이언트에 전송
+        Broadcast(roomListData, new List<ServerClient>() { client });
+    }
+
     public void ShowNoti(string context)
     {
-        GameObject noti = Managers.Resource.Instantiate("UI/Notification",UI_Lobby.transform);
+        GameObject noti = Managers.Resource.Instantiate("UI/Notification", UI_Lobby.transform);
         if(context != "")
             noti.GetComponent<Notification>().context = context;
     }
-
+    public void OnApplicationQuit()
+    {
+        tcpServer.Stop();
+    }
 }
 
 public class ServerClient           // 서버에서 클라이언트에 대한 정보를 갖기위한 클래스
@@ -229,14 +297,14 @@ public class Room                   // 서버에서 Room에 대한 정보를 유
         }
         else
         {
-            Debug.Log($"{roomName} 에 현재인원이 최대, 더이상 수용할 수 없음");
+            TCPServer.instance.ShowNoti($"{roomName} 에 현재인원이 최대, 더이상 수용할 수 없음");
         }
     }
     public void                 removeMember(ServerClient client)
     {
         if (currentMemNum == 0)
         {
-            Debug.Log($"{roomName}에 현재인원이 아무도 없음, 제거할 수 없음");
+            TCPServer.instance.ShowNoti($"{roomName}에 현재인원이 아무도 없음, 제거할 수 없음");
             return;
         }
         clientsInRoom.Remove(client);

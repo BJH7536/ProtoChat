@@ -87,8 +87,6 @@ public class ChatManager : MonoBehaviour
             CurDateArea.GetComponent<AreaScript>().DateText.text = t.Year + "년" + t.Month + "월" + t.Day + "일" + week + "요일";
         }
 
-
-
         Fit(Area.BoxRect);
         Fit(Area.AreaRect);
         Fit(ContentRect);

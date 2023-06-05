@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class UI_IntToServer : UI_Scene
 {
-    enum InputField
+    enum TMP_InputField
     {
         PortInputField,
     }
@@ -23,7 +23,7 @@ public class UI_IntToServer : UI_Scene
         // TODO
         // 서버 포트를 잡고 다음씬으로 넘긴다
         BindButton(typeof(Button));
-        BindInputField(typeof(InputField));
+        BindInputField(typeof(TMP_InputField));
 
         GetButton((int)Button.SubmitBtn).gameObject.BindEvent(GotoServerLobby);
 
@@ -33,7 +33,8 @@ public class UI_IntToServer : UI_Scene
     public void GotoServerLobby()
     {
         Managers.Instance.IPaddress = "127.0.0.1";
-        Managers.Instance.Port = GetInputField((int)InputField.PortInputField).text;
+        Managers.Instance.Port = GetInputField((int)TMP_InputField.PortInputField).text;
+        Managers.Instance.ClientName = "@Server";
         Managers.Scene.ChangeScene(Define.Scene.Lobby);
     }
 }

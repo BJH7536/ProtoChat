@@ -12,7 +12,7 @@ public class LobbyScene : BaseScene
 
         Scene = Define.Scene.Lobby;
 
-        Debug.Log("Init");
+        Debug.Log("Lobby");
         return true;
     }
 }

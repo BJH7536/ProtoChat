@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UI_IntToClient : UI_Scene
 {
-    enum InputField
+    enum TMP_InputField
     {
         IPInputField,
         PortInputField,
+        NameInputField,
     }
 
     enum Button
@@ -26,9 +28,19 @@ public class UI_IntToClient : UI_Scene
         // Server¸¦ Ã£¾Æ¾ß°ÚÁö
         // IP, Port¸¦ ÀÔ·Â¹Þ¾Æ¼­ ¼­¹ö¸¦ Àâ°í ´ÙÀ½ ¾ÀÀ¸·Î ³Ñ±ä´Ù
 
-        BindInputField(typeof(InputField));
+        BindInputField(typeof(TMP_InputField));
         BindButton(typeof(Button));
-        //GetButton((int)InputField.IPInputField).gameObject.
+
+        GetInputField((int)TMP_InputField.IPInputField).onValueChanged.AddListener(
+                (word) => GetInputField((int)TMP_InputField.IPInputField).text = Regex.Replace(word, @"[^0-9.]", "")
+            );
+
+        GetInputField((int)TMP_InputField.NameInputField).onValueChanged.AddListener(
+                (word) => GetInputField((int)TMP_InputField.NameInputField).text = Regex.Replace(word, @"[^0-9a-zA-Z°¡-ÆR]", "")
+            );
+
+
+
 
         GetButton((int)Button.SubmitBtn).gameObject.BindEvent(GotoLobby);
 
@@ -37,8 +49,9 @@ public class UI_IntToClient : UI_Scene
 
     public void GotoLobby()
     {
-        Managers.Instance.IPaddress = GetInputField((int)InputField.IPInputField).text;
-        Managers.Instance.Port = GetInputField((int)InputField.PortInputField).text;
+        Managers.Instance.IPaddress = GetInputField((int)TMP_InputField.IPInputField).text;
+        Managers.Instance.Port = GetInputField((int)TMP_InputField.PortInputField).text;
+        Managers.Instance.ClientName = GetInputField((int)TMP_InputField.NameInputField).text;
         Managers.Scene.ChangeScene(Define.Scene.Lobby);
     }
 }
