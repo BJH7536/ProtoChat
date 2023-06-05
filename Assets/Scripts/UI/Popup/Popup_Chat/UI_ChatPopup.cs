@@ -51,7 +51,7 @@ public class UI_ChatPopup : UI_Popup
     public void send()
     {
         string text = GetInputField((int)TMP_InputField.ChatInputField).text;
-        TCPClient.instance;
+        //TCPClient.instance;
 
         GetInputField((int)TMP_InputField.ChatInputField).text = "";
     }
