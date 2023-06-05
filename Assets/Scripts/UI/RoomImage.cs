@@ -30,6 +30,7 @@ public class RoomImage : MonoBehaviour
 
         GameObject UI_Lobby = GameObject.Find("UI_Lobby");
         myChatPopup = Managers.Resource.Instantiate("UI/ChatPopup", UI_Lobby.transform);
+        myChatPopup.GetComponent<UI_ChatPopup>().roomImage = this;
     }
 
 }

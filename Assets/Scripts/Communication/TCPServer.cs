@@ -24,8 +24,8 @@ public class TCPServer : MonoBehaviour
 
     List<Room> Rooms;                                       // 모든 Room들
 
-    TcpListener tcpServer;     // 실제 서버?
-    bool serverStarted;     // 서버가 열리면 True
+    TcpListener tcpServer;                                  // 실제 서버?
+    bool serverStarted;                                     // 서버가 열리면 True
 
     public void ServerCreate()
 	{
@@ -40,12 +40,12 @@ public class TCPServer : MonoBehaviour
         try             // 디버그를 위한 try-catch문
         {
             int port = ServerPort == "" ? 7777 : int.Parse(ServerPort);     // port 안정했으면 임의로 7777을 쓴다
-            tcpServer = new TcpListener(IPAddress.Any, port);                          // 새로운 Listener 소켓을 생성 (IPAddress.Any : 자기 컴퓨터의 IP 주소)
-            tcpServer.Start();                                                         // 서버가 열리면 Bind하고
+            tcpServer = new TcpListener(IPAddress.Any, port);               // 새로운 Listener 소켓을 생성 (IPAddress.Any : 자기 컴퓨터의 IP 주소)
+            tcpServer.Start();                                              // 서버가 열리면 Bind하고
 
-            StartListening();                                                       // Listen 시작
+            StartListening();                                               // Listen 시작
             serverStarted = true;
-            ShowNoti($"서버가 {port}에서 시작되었습니다.");          // 알림
+            ShowNoti($"서버가 {port}에서 시작되었습니다.");                     // 알림
         }
         catch (Exception e) 
         {
@@ -81,7 +81,7 @@ public class TCPServer : MonoBehaviour
 
 		for (int i = 0; i < tcpDisconnectClients.Count - 1; i++)
 		{
-            Broadcast($"{tcpDisconnectClients[i].clientName} 연결이 끊어졌습니다", tcpClients);
+            ShowNoti($"{tcpDisconnectClients[i].clientName} 연결이 끊어졌습니다");
 
             tcpClients.Remove(tcpDisconnectClients[i]);
             tcpDisconnectClients.RemoveAt(i);
@@ -128,7 +128,8 @@ public class TCPServer : MonoBehaviour
         if (data.StartsWith("&NAME"))                         // 수신한 데이터가 &NAME으로 시작한다면, (= 연결 성공 메세지)
         {
             c.clientName = data.Split('|')[1];
-            Broadcast($"{c.clientName}이(가) 연결되었습니다", tcpClients);
+            ShowNoti($"{c.clientName}이(가) 연결되었습니다");
+            Debug.Log($"{c.clientName}이(가) 연결되었습니다");
             return;
         }
         else if (data.StartsWith("&CREATEROOM|"))           // CREATEROOM 요청이 들어올 때 방 추가.
@@ -145,22 +146,29 @@ public class TCPServer : MonoBehaviour
                 }
             }
         }
-        else if (data == "&ROOMLIST")                       // 클라이언트가 채팅방 목록 요청을 보냈을 때
-        {
-            SendRoomList(c);                                // 채팅방 목록 정보를 해당 클라이언트에게 전송
-            return;
-        }
         else if (data.StartsWith("&CHAT"))                  // 클라이언트가 채팅 메시지를 보냈을 때
         {
             Room clientRoom = GetClientRoom(c);
             if (clientRoom != null)
             {
-                BroadcastToRoom($"{c.clientName} : {data.Substring(6)}", clientRoom);
+                string[] chatData = data.Substring(6).Split('|');
+                string roomName = chatData[0];
+                string message = chatData[1];
+
+                if (roomName == "")
+                {
+                    BroadcastToRoom($"%CHAT|{c.clientName}|{message}", clientRoom);
+                }
             }
             return;
         }
+        else if (data == "&ROOMLIST")                       // 클라이언트가 채팅방 목록 요청을 보냈을 때
+        {
+            SendRoomList(c);                                // 채팅방 목록 정보를 해당 클라이언트에게 전송
+            return;
+        }
 
-        Broadcast($"{c.clientName} : {data}", tcpClients);     // client c가 보낸 data를 모든 client들에게 broadcast한다
+        return;
     }
 
     void Broadcast(string data, List<ServerClient> cl) 
@@ -194,7 +202,14 @@ public class TCPServer : MonoBehaviour
 
     void BroadcastToRoom(string data, Room room)
     {
-        Broadcast(data, room.getMembers());
+        if (room != null)
+        {
+            Broadcast(data, room.getMembers());
+        }
+        else
+        {
+            ShowNoti($"'{room.roomName}'이라는 이름의 채팅방을 찾을 수 없습니다.");
+        }
     }
 
     void CreateRoom(string roomName, int maxPlayers, ServerClient client)

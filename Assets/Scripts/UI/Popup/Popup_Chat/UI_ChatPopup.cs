@@ -5,10 +5,12 @@ using UnityEngine;
 
 public class UI_ChatPopup : UI_Popup
 {
-    public Vector3 initPos;
+    //public Vector3 initPos;
     public GameObject ChatManager;
-
     ChatManager chatManager;
+
+    public RoomImage roomImage;
+    public string roomName;
 
     enum TMP_InputField
     {
@@ -27,8 +29,10 @@ public class UI_ChatPopup : UI_Popup
         if (base.Init() == false)
             return false;
 
-        initPos = gameObject.GetComponent<RectTransform>().anchoredPosition;
-        Debug.Log(initPos);
+        //initPos = gameObject.GetComponent<RectTransform>().anchoredPosition;
+        //Debug.Log(initPos);
+
+        roomName = roomImage.roomName;
 
         chatManager = ChatManager.GetComponent<ChatManager>();
 
@@ -50,10 +54,20 @@ public class UI_ChatPopup : UI_Popup
 
     public void send()
     {
-        string text = GetInputField((int)TMP_InputField.ChatInputField).text;
-        //TCPClient.instance;
-
+        string text = GetInputField((int)TMP_InputField.ChatInputField).text.Trim();
         GetInputField((int)TMP_InputField.ChatInputField).text = "";
+
+        if (text == "")
+        {
+            GetInputField((int)TMP_InputField.ChatInputField).text = "";
+            return;
+        }
+        else
+        {
+            TCPClient.instance.SendCreateRoomReq(roomName, text);
+            return;
+        }
+
     }
 
     public void media()

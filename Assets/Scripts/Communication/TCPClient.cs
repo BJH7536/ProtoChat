@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.IO;
 using System;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 public class TCPClient : MonoBehaviour
 {
@@ -27,6 +28,10 @@ public class TCPClient : MonoBehaviour
 	StreamWriter writer;
     StreamReader reader;
     #endregion 
+
+    // TODO
+    // 채팅방에 들어오고 나가는 함수도 만들어서 바인딩
+    // 이에 따른 서버의 동작도 구현할 것
 
     public void ConnectToServer()
 	{
@@ -66,7 +71,28 @@ public class TCPClient : MonoBehaviour
 		}
 	}
 
-	void OnIncomingData(string data)
+    void Send(string data)
+    {
+        if (!socketReady) return;
+
+        writer.WriteLine(data);
+        writer.Flush();
+    }
+
+    public void OnSendButton(InputField SendInput)
+    {
+#if (UNITY_EDITOR || UNITY_STANDALONE)
+        if (!Input.GetButtonDown("Submit")) return;
+        SendInput.ActivateInputField();
+#endif
+        if (SendInput.text.Trim() == "") return;
+
+        string message = SendInput.text;
+        SendInput.text = "";
+        Send(message);
+    }
+
+    void OnIncomingData(string data)
 	{
 
 		if (data == "%NAME") 
@@ -75,40 +101,57 @@ public class TCPClient : MonoBehaviour
 			Send($"&NAME|{ClientName}");
 			return;
 		}
-		else if (data.StartsWith("%ROOMLIST")) // 서버로부터 채팅방 목록 데이터를 받았을 때
+		else if (data.StartsWith("%ROOMLIST"))	// 서버로부터 채팅방 목록 데이터를 받았을 때
         {
-            ProcessRoomList(data); // 채팅방 목록 데이터 처리
+            ProcessRoomList(data);				// 채팅방 목록 데이터 처리
             return;
         }
+		else if (data.StartsWith("%CHAT"))		// 서버로부터 채팅방 내부 채팅 메세지를 받았을 때
+		{
+			ProcessChatMessage(data);
+			return;
+		}
+
 
         //Chat.instance.ShowMessage(data);
 	}
 
-	void Send(string data)
-	{
-		if (!socketReady) return;
+    private void ProcessChatMessage(string data)        // 채팅 메세지 수신 후 처리
+    {
+        string[] chatData = data.Split('|');
+        string Sender = chatData[1];
+        string message = chatData[2];
 
-		writer.WriteLine(data);
-		writer.Flush();
-	}
+        if(Sender == Managers.Instance.ClientName)
+        {
+            //
+            //chatManager.Chat(true, message, "나", null);
+            //
+        }
+        else
+        {
+            //
+            //chatManager.Chat(false, message, Sender, null);
+            //
+        }
+        // TODO
+        // 올바른 ChatManager를 찾아서 화면에 띄우기
+
+    }
 
 	public void SendRoomListReq()
 	{
 		Send("&ROOMLIST");
 	}
 
-	public void OnSendButton(InputField SendInput)
-	{
-#if (UNITY_EDITOR || UNITY_STANDALONE)
-		if (!Input.GetButtonDown("Submit")) return;
-		SendInput.ActivateInputField();
-#endif
-		if (SendInput.text.Trim() == "") return;
+    public void SendChatMessage(string roomName, string message)
+    {
+        // 요청 메시지 생성
+        string data = $"&CHAT|{roomName}|{message}";
 
-		string message = SendInput.text;
-		SendInput.text = "";
-		Send(message);
-	}
+        // 메시지 전송
+        Send(data);
+    }
 
     public void SendCreateRoomReq(string roomName, string maxPlayers)
     {
