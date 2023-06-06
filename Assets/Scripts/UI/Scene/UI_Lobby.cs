@@ -1,3 +1,4 @@
+using IngameDebugConsole;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -29,6 +30,9 @@ public class UI_Lobby : UI_Scene
             return false;
 
         BindButton(typeof(Buttons));
+
+        if (Managers.Instance.role == Role.Client)
+            DebugLogManager.Instance.gameObject.SetActive(false);
 
         //if (Managers.Instance.role == Role.Server)                          // 클라이언트 모드일때만 Room생성 요청 가능
         //    GetButton((int)Buttons.CreateRoomBtn).gameObject.SetActive(false);

@@ -18,6 +18,18 @@ public class UserScrollViewController : MonoBehaviour
     void Start()
     {
         ScrollRect = GetComponent<ScrollRect>();
+
+        StartCoroutine(refreshAuto());
+    }
+
+    IEnumerator refreshAuto()
+    {
+        while (true)
+        {
+            ClearAllObjects();
+            TCPClient.instance.SendUserListReq();
+            yield return new WaitForSeconds(5.0f);
+        }
     }
 
     public UserImage AddNewUiObject()

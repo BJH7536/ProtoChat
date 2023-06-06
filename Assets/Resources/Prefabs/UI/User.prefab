@@ -137,6 +137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 303bc2d99b776d846ad132a179617674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userNameField: {fileID: 4790987877367674257}
+  lineField: {fileID: 3590965622805297724}
   Username: 
   Online: 0
 --- !u!1 &1019340505393526250
@@ -207,8 +209,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: UserName
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6ac571af6c4343e4686a78b8451b27f6, type: 2}
-  m_sharedMaterial: {fileID: -8019604425545923686, guid: 6ac571af6c4343e4686a78b8451b27f6, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 587331bcabf931745804f7169dd8f3a1, type: 2}
+  m_sharedMaterial: {fileID: 9208110498288547748, guid: 587331bcabf931745804f7169dd8f3a1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -342,8 +344,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: on/offline
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 587331bcabf931745804f7169dd8f3a1, type: 2}
+  m_sharedMaterial: {fileID: 9208110498288547748, guid: 587331bcabf931745804f7169dd8f3a1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

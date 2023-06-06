@@ -19,6 +19,11 @@ class UI_CrtRmReqPopup : UI_Popup
         CreateRoomBtn_1,
     }
 
+    enum Images
+    {
+        Back,
+    }
+
     public override bool Init()
     {
         if (base.Init() == false)
@@ -26,8 +31,10 @@ class UI_CrtRmReqPopup : UI_Popup
 
         BindButton(typeof(Buttons));
         BindInputField(typeof(TMP_InputField));
+        BindImage(typeof(Images));
 
         GetButton((int)Buttons.CreateRoomBtn_1).gameObject.BindEvent(SendCreateRoomReq);
+        GetImage((int)Images.Back).gameObject.BindEvent(Close);
 
         return true;
     }
@@ -40,5 +47,8 @@ class UI_CrtRmReqPopup : UI_Popup
         Destroy(gameObject);
     }
 
-    
+    void Close()
+    {
+        Destroy(gameObject);
+    }
 }

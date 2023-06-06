@@ -941,7 +941,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -61.22003, y: -15}
+  m_AnchoredPosition: {x: -61.21997, y: -15}
   m_SizeDelta: {x: 120, y: 29}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1368141002712211108
@@ -1255,7 +1255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9750d69c85775bd4da82ac72cfaf657c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyArea: {fileID: 4343652050971197229, guid: 5b07349766613eb4089f990dbb3168ee, type: 3}
+  MyArea: {fileID: 2814029754631972196, guid: c73af4f1e1845534a891ca3b07beb026, type: 3}
   YourArea: {fileID: 581112058977498401, guid: 8eaec1fcc93d76946b6a8d6b671f9240, type: 3}
   DateArea: {fileID: 0}
   ContentRect: {fileID: 5427733238258786545}
@@ -1475,8 +1475,8 @@ GameObject:
   - component: {fileID: 5427733237958674489}
   - component: {fileID: 5427733237958674438}
   - component: {fileID: 5427733237958674439}
-  - component: {fileID: 1394606588996799958}
   - component: {fileID: 4332338023802513724}
+  - component: {fileID: 1394606588996799958}
   m_Layer: 5
   m_Name: ChatPopup
   m_TagString: Untagged
@@ -1552,7 +1552,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &5427733237958674439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1570,20 +1570,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &1394606588996799958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5427733237958674437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9999d4033c0765a40a2b284c26ac278b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  initPos: {x: 0, y: 0, z: 0}
-  ChatManager: {fileID: 5427733237160495698}
 --- !u!95 &4332338023802513724
 Animator:
   serializedVersion: 5
@@ -1604,6 +1590,21 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+--- !u!114 &1394606588996799958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5427733237958674437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9999d4033c0765a40a2b284c26ac278b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ChatManager: {fileID: 5427733237160495698}
+  roomImage: {fileID: 0}
+  roomName: 
 --- !u!1 &5427733238235580202
 GameObject:
   m_ObjectHideFlags: 0

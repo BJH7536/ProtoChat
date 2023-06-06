@@ -28,6 +28,7 @@ public class RoomImage : MonoBehaviour
     {
         if (myChatPopup != null) return;
 
+        TCPClient.instance.SendEnterRoom(roomName);
         GameObject UI_Lobby = GameObject.Find("UI_Lobby");
         myChatPopup = Managers.Resource.Instantiate("UI/ChatPopup", UI_Lobby.transform);
         myChatPopup.GetComponent<UI_ChatPopup>().roomImage = this;

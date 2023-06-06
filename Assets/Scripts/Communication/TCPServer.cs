@@ -27,6 +27,9 @@ public class TCPServer : MonoBehaviour
     TcpListener tcpServer;                                  // 실제 서버?
     bool serverStarted;                                     // 서버가 열리면 True
 
+    // 이미지를 저장할 경로
+    private string imageSavePath = @"C:\ProtoChatData\Server";
+
     public void ServerCreate()
 	{
         tcpClients = new List<ServerClient>();
@@ -36,6 +39,12 @@ public class TCPServer : MonoBehaviour
 
         ServerInternalClient = new ServerClient(TCPClient.instance.tcpSocket);
         ServerInternalClient.clientName = Managers.Instance.ClientName;
+
+        // 이미지 저장 폴더 생성
+        if (!Directory.Exists(imageSavePath))
+        {
+            Directory.CreateDirectory(imageSavePath);
+        }
 
         try             // 디버그를 위한 try-catch문
         {
@@ -128,11 +137,12 @@ public class TCPServer : MonoBehaviour
         if (data.StartsWith("&NAME"))                         // 수신한 데이터가 &NAME으로 시작한다면, (= 연결 성공 메세지)
         {
             c.clientName = data.Split('|')[1];
-            ShowNoti($"{c.clientName}이(가) 연결되었습니다");
             Debug.Log($"{c.clientName}이(가) 연결되었습니다");
-            return;
+
+            if (c.clientName != "@Server")
+                ShowNoti($"{c.clientName}이(가) 연결되었습니다");
         }
-        else if (data.StartsWith("&CREATEROOM|"))           // CREATEROOM 요청이 들어올 때 방 추가.
+        else if (data.StartsWith("&CREATEROOM"))           // CREATEROOM 요청이 들어올 때 방 추가.
         {
             string[] roomData = data.Split('|');
             if (roomData.Length == 3)
@@ -142,31 +152,63 @@ public class TCPServer : MonoBehaviour
                 if (int.TryParse(roomData[2], out maxPlayers))
                 {
                     CreateRoom(roomName, maxPlayers, c);
-                    return;
                 }
             }
         }
         else if (data.StartsWith("&CHAT"))                  // 클라이언트가 채팅 메시지를 보냈을 때
         {
-            Room clientRoom = GetClientRoom(c);
+            string[] chatData = data.Substring(6).Split('|');
+            string roomName = chatData[0];
+            string message = chatData[1];
+
+            Room clientRoom = GetClientRoom(c, roomName);
             if (clientRoom != null)
             {
-                string[] chatData = data.Substring(6).Split('|');
-                string roomName = chatData[0];
-                string message = chatData[1];
-
-                if (roomName == "")
+                if (roomName != "")
                 {
                     BroadcastToRoom($"%CHAT|{c.clientName}|{message}", clientRoom);
                 }
             }
-            return;
+        }
+        else if (data.StartsWith("&ENTER"))
+        {
+            string[] enterData = data.Substring(7).Split('|');
+            string roomName = enterData[0];
+
+            // 채팅방에 클라이언트 입장 처리
+            EnterRoom(c, roomName);
+        }
+        else if (data.StartsWith("&LEAVE"))
+        {
+            string roomName = data.Split('|')[1];
+            LeaveRoom(c, roomName);
+        }
+        else if (data.StartsWith("&IMAGE"))                  // 클라이언트가 이미지를 보냈을 때
+        {
+            string[] datas = data.Split('|');
+            string roomName = datas[1];
+            string imageString = datas[2];
+            // 이미지 데이터 받기
+            byte[] imageData = Convert.FromBase64String(imageString);
+
+            // 이미지 파일로 저장
+            string imageName = $"image_{DateTime.Now:yyyyMMddHHmmss}.png";
+            string imagePath = Path.Combine(imageSavePath, imageName);
+            File.WriteAllBytes(imagePath, imageData);
+
+            //같은 방 내의 클라이언트들에게 멀티캐스트
+            Room clientRoom = GetClientRoom(c, roomName);
+            BroadcastToRoom($"%IMAGE|{c.clientName}|{imageString}", clientRoom);
         }
         else if (data == "&ROOMLIST")                       // 클라이언트가 채팅방 목록 요청을 보냈을 때
         {
             SendRoomList(c);                                // 채팅방 목록 정보를 해당 클라이언트에게 전송
-            return;
         }
+        else if (data == "&USERLIST")
+        {
+            SendUserList(c);
+        }
+        Debug.Log($"{c.clientName}({c.tcp.Client.RemoteEndPoint}) : {data}");
 
         return;
     }
@@ -183,16 +225,16 @@ public class TCPServer : MonoBehaviour
             }
             catch (Exception e) 
             {
-                ShowNoti($"쓰기 에러 : {e.Message}를 클라이언트에게 {c.clientName}");
+                ShowNoti($"Error : message sending failed to '{c.clientName}'");
             }
         }
     }
 
-    Room GetClientRoom(ServerClient client)
+    Room GetClientRoom(ServerClient client, string roomName)
     {
         foreach (Room room in Rooms)
         {
-            if (room.getMembers().Contains(client))
+            if (room.getMembers().Contains(client) && room.roomName == roomName)
             {
                 return room;
             }
@@ -209,6 +251,7 @@ public class TCPServer : MonoBehaviour
         else
         {
             ShowNoti($"'{room.roomName}'이라는 이름의 채팅방을 찾을 수 없습니다.");
+            Debug.Log($"'{room.roomName}'이라는 이름의 채팅방을 찾을 수 없습니다.");
         }
     }
 
@@ -218,15 +261,16 @@ public class TCPServer : MonoBehaviour
         if (Rooms.Exists(r => r.roomName == roomName))
         {
             ShowNoti($"'{roomName}'이라는 이름의 방이 이미 존재합니다.");
+            SendNoti($"'{roomName}'이라는 이름의 방이 이미 존재합니다.", client);
             return;
         }
 
         // 새로운 Room 생성
         Room room = new Room(roomName, maxPlayers);
-        room.addMember(client);
         Rooms.Add(room);
 
         ShowNoti($"'{roomName}' 방이 생성되었습니다.");
+        SendNoti($"'{roomName}' 방이 생성되었습니다.", client);
     }
 
     void SendRoomList(ServerClient client)
@@ -259,15 +303,85 @@ public class TCPServer : MonoBehaviour
         Broadcast(roomListData, new List<ServerClient>() { client });
     }
 
+    void SendUserList(ServerClient client)
+    {
+        string userListData = "%USERLIST|"; // 유저 목록 데이터를 담을 문자열 변수 초기화
+
+        // 모든 유저에 대한 정보를 문자열에 추가
+        foreach (ServerClient _client in tcpClients)
+        {
+            userListData += $"{_client.clientName}|";
+        }
+
+        // 유저 목록 데이터를 클라이언트에 전송
+        Broadcast(userListData, new List<ServerClient>() { client });
+    }
+
+    void EnterRoom(ServerClient client, string roomName)
+    {
+        // 클라이언트가 이미 채팅방에 있는지 확인
+        Room existingRoom = GetClientRoom(client, roomName);
+        if (existingRoom != null)
+        {
+            // 이미 채팅방에 있으면 해당 방을 나가고 새로운 방으로 입장
+            LeaveRoom(client,roomName);
+        }
+
+        string data;
+
+        // 채팅방 이름에 해당하는 방을 찾기
+        Room targetRoom = Rooms.Find(room => room.roomName == roomName);
+        if (targetRoom != null)
+        {
+            // 채팅방에 입장
+            if (targetRoom.currentMemNum < targetRoom.MaxMemNum)
+            {
+                targetRoom.addMember(client);
+                data = $"{client.clientName}님이 '{roomName}' 채팅방에 입장하셨습니다.";
+            }
+            else
+                data = $"'{roomName}' 채팅방에 입장할 수 없습니다. 방이 가득 찼습니다.";
+        }
+        else
+            data = $"'{roomName}' 채팅방을 찾을 수 없습니다.";
+
+        ShowNoti(data);
+        SendNoti(data, client);
+    }
+
+    void LeaveRoom(ServerClient client, string roomName)
+    {
+        Room clientRoom = GetClientRoom(client, roomName);
+        if (clientRoom != null)
+        {
+            clientRoom.removeMember(client);
+            BroadcastToRoom($"%CHAT|@Server|{client.clientName}님이 채팅방을 나갔습니다.", clientRoom);
+
+            if (clientRoom.getMembers().Count == 0)
+            {
+                Rooms.Remove(clientRoom);
+                ShowNoti($"{clientRoom.roomName} 방이 삭제되었습니다.");
+            }
+        }
+        else
+        {
+            ShowNoti($"클라이언트 {client.clientName}은(는) 어떤 채팅방에도 속해있지 않습니다.");
+        }
+    }
+
     public void ShowNoti(string context)
     {
         GameObject noti = Managers.Resource.Instantiate("UI/Notification", UI_Lobby.transform);
         if(context != "")
             noti.GetComponent<Notification>().context = context;
+
+        Debug.Log(context);
     }
-    public void OnApplicationQuit()
+    public void SendNoti(string context, ServerClient client)
     {
-        tcpServer.Stop();
+        string data = $"%NOTI|{context}";
+
+        Broadcast(data, new List<ServerClient>() { client });
     }
 }
 
