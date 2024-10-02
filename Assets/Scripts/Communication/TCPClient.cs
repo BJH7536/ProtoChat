@@ -29,9 +29,11 @@ public class TCPClient : MonoBehaviour
     public static event MessageDelegate textdelegate;
     public static event ImageDelegate imagedelegate;
 
+    private bool isDisconnected = false; // 서버 연결 끊김 여부를 추적
     public bool ImageLoaded = false;
-    public string LoadedImage = null; // 경로
 
+    public string LoadedImage = null; // 경로
+    
     // 이미지를 저장할 경로
     private string imageSavePath = @"C:\ProtoChatData\Client";
 
@@ -62,30 +64,61 @@ public class TCPClient : MonoBehaviour
 
         // 소켓 생성
         try
-		{
-            tcpSocket = new TcpClient(ip, port);		// 소켓 생성
-			stream = tcpSocket.GetStream();			// 네트워크의 스트림을 관찰할 수 있도록
-			writer = new StreamWriter(stream);
-			reader = new StreamReader(stream);
-			socketReady = true;
+        {
+            tcpSocket = new TcpClient(ip, port); // 소켓 생성
+            stream = tcpSocket.GetStream(); // 네트워크의 스트림을 관찰할 수 있도록
+            writer = new StreamWriter(stream);
+            reader = new StreamReader(stream);
+            socketReady = true;
 
-		}
+        }
+        catch (SocketException e) 
+        {
+            ShowNoti($"서버에 연결할 수 없습니다. 잠시 후 초기화면으로 돌아갑니다.");
+            StartCoroutine(DisconnectAndChangeScene());
+        }
 		catch (Exception e) 
 		{
-            ShowNoti($"소켓에러 : {e.Message}");
-		}
+            ShowNoti($"{e.GetType()} \n {e.Message}");
+            StartCoroutine(DisconnectAndChangeScene());
+        }
 	}
+    
+    void Update()
+    {
+        if (socketReady && !isDisconnected)
+        {
+            try
+            {
+                // 서버와의 연결이 끊어졌는지 확인
+                if (tcpSocket != null && (!tcpSocket.Connected || (tcpSocket.Client.Poll(0, SelectMode.SelectRead) && tcpSocket.Client.Receive(new byte[1], SocketFlags.Peek) == 0)))
+                {
+                    // 연결이 끊어졌음을 감지하고 처리
+                    HandleServerDisconnection();
+                }
 
-	void Update()
-	{
-		if (socketReady && stream.DataAvailable)	// 연결되고, 데이터가 오고 있으면?
-		{
-			string data = reader.ReadLine();
-			if (data != null)
-				OnIncomingData(data);				// 스트림을 리더로 읽어서 데이터가 유효하면 OnIncomingData 실행
-		}
-	}
-
+                // 서버로부터 데이터가 왔을 때 처리
+                if (stream != null && stream.DataAvailable)
+                {
+                    string data = reader.ReadLine();
+                    if (data != null)
+                        OnIncomingData(data);
+                }
+            }
+            catch (SocketException socketEx)
+            {
+                // 소켓 예외가 발생하면 서버 연결 끊김으로 처리
+                Debug.LogError($"소켓 예외 발생: {socketEx.Message}");
+                HandleServerDisconnection();
+            }
+            // catch (Exception ex)
+            // {
+            //     // 그 외 예외 처리
+            //     Debug.LogError($"알 수 없는 예외 발생: {ex.Message}");
+            // }
+        }
+    }
+    
     void Send(string data)
     {
         if (!socketReady) return;
@@ -287,6 +320,8 @@ public class TCPClient : MonoBehaviour
         // 서버로부터 받은 유저 목록 데이터 파싱
         string[] userDataArray = data.Split('|');
 
+        ScrollView_Users.ClearAllObjects();
+        
         for (int i = 1; i < userDataArray.Length - 1; i++)
         {
             string roomName = userDataArray[i];
@@ -312,10 +347,35 @@ public class TCPClient : MonoBehaviour
 	}
     public void ShowNoti(string context)
     {
-        GameObject noti = Managers.Resource.Instantiate("UI/Notification", UI_Lobby.transform);
+        GameObject noti = Managers.Resource.Instantiate("UI/Notification", null);
         if (context != "")
-            noti.GetComponent<Notification>().context = context;
+            noti.GetComponentInChildren<Notification>().context = context;
 
         Debug.Log(context);
     }
+    
+    void HandleServerDisconnection()
+    {
+        if (!isDisconnected)
+        {
+            // 연결 끊김 알림을 한 번만 표시
+            isDisconnected = true;
+
+            // 알림을 띄움
+            ShowNoti("서버와의 연결이 끊어졌습니다. \n 잠시후 초기화면으로 돌아갑니다.");
+
+            // 몇 초 후에 초기 화면으로 이동
+            StartCoroutine(DisconnectAndChangeScene());
+        }
+    }
+    
+    IEnumerator DisconnectAndChangeScene()
+    {
+        // 3초 대기
+        yield return new WaitForSeconds(3);
+
+        // Init 화면으로 이동
+        Managers.Scene.ChangeScene(Define.Scene.Init);
+    }
+    
 }

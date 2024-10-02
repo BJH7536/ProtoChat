@@ -25,8 +25,8 @@ public class UI_IntToClient : UI_Scene
             return false;
 
         // TODO
-        // Server¸¦ Ã£¾Æ¾ß°ÚÁö
-        // IP, Port¸¦ ÀÔ·Â¹Þ¾Æ¼­ ¼­¹ö¸¦ Àâ°í ´ÙÀ½ ¾ÀÀ¸·Î ³Ñ±ä´Ù
+        // Serverë¥¼ ì°¾ì•„ì•¼ê² ì§€
+        // IP, Portë¥¼ ìž…ë ¥ë°›ì•„ì„œ ì„œë²„ë¥¼ ìž¡ê³  ë‹¤ìŒ ì”¬ìœ¼ë¡œ ë„˜ê¸´ë‹¤
 
         BindInputField(typeof(TMP_InputField));
         BindButton(typeof(Button));
@@ -36,7 +36,7 @@ public class UI_IntToClient : UI_Scene
             );
 
         GetInputField((int)TMP_InputField.NameInputField).onValueChanged.AddListener(
-                (word) => GetInputField((int)TMP_InputField.NameInputField).text = Regex.Replace(word, @"[^0-9a-zA-Z°¡-ÆR]", "")
+                (word) => GetInputField((int)TMP_InputField.NameInputField).text = Regex.Replace(word, @"[^0-9a-zA-Zê°€-íž£]", "")
             );
 
 

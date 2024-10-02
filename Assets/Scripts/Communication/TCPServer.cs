@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
-using UnityEngine.UI;
 using System;
 using System.IO;
-using TMPro;
 
 public class TCPServer : MonoBehaviour
 {
@@ -72,7 +69,7 @@ public class TCPServer : MonoBehaviour
             if (!IsConnected(c.tcp))                    // 클라이언트 연결이 끊겼다면
             {
                 c.tcp.Close();                              // 소켓을 닫고
-                tcpDisconnectClients.Add(c);                      // disconnectList에 해당 클라이언트를 추가
+                tcpDisconnectClients.Add(c);                // disconnectList에 해당 클라이언트를 추가
                 continue;
             }
             // 클라이언트로부터 체크 메시지를 받는다
@@ -371,17 +368,42 @@ public class TCPServer : MonoBehaviour
 
     public void ShowNoti(string context)
     {
-        GameObject noti = Managers.Resource.Instantiate("UI/Notification", UI_Lobby.transform);
+        GameObject noti = Managers.Resource.Instantiate("UI/Notification", null);
         if(context != "")
-            noti.GetComponent<Notification>().context = context;
+            noti.GetComponentInChildren<Notification>().context = context;
 
         Debug.Log(context);
     }
+    
     public void SendNoti(string context, ServerClient client)
     {
         string data = $"%NOTI|{context}";
 
         Broadcast(data, new List<ServerClient>() { client });
+    }
+    
+    public void ServerShutdown()
+    {
+        // 서버가 시작되었는지 확인
+        if (!serverStarted) return;
+
+        // 모든 클라이언트의 연결을 닫고 리스트 비우기
+        foreach (var client in tcpClients)
+        {
+            client.tcp.Close();  // 각 클라이언트 소켓을 닫음
+        }
+        tcpClients.Clear();
+
+        // TCP 리스너 종료
+        tcpServer.Stop();  // 리스너를 중지하여 포트 반환
+        serverStarted = false;
+
+        Debug.Log("서버가 종료되었습니다. 포트가 반환되었습니다.");
+    }
+    
+    void OnApplicationQuit()
+    {
+        ServerShutdown();  // 서버 종료 및 자원 해제
     }
 }
 

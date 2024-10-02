@@ -31,10 +31,10 @@ public class UI_Lobby : UI_Scene
 
         BindButton(typeof(Buttons));
 
-        if (Managers.Instance.role == Role.Client)
-            DebugLogManager.Instance.gameObject.SetActive(false);
+        //if (Managers.Instance.role == Role.Client)
+        //    DebugLogManager.Instance.gameObject.SetActive(false);
 
-        //if (Managers.Instance.role == Role.Server)                          // Å¬¶óÀÌ¾ğÆ® ¸ğµåÀÏ¶§¸¸ Room»ı¼º ¿äÃ» °¡´É
+        //if (Managers.Instance.role == Role.Server)                          // í´ë¼ì´ì–¸íŠ¸ ëª¨ë“œì¼ë•Œë§Œ Roomìƒì„± ìš”ì²­ ê°€ëŠ¥
         //    GetButton((int)Buttons.CreateRoomBtn).gameObject.SetActive(false);
         
         //Debug.Log("Load-------------------");
@@ -42,18 +42,18 @@ public class UI_Lobby : UI_Scene
         //Debug.Log(Managers.Instance.protocol);
         //Debug.Log("-----------------------");
 
-        #region ÇÁ·ÎÅäÄİ°ú ¿ªÇÒ¿¡ µû¶ó Åë½Å ¿ÀºêÁ§Æ® Á¤¸®
+        #region í”„ë¡œí† ì½œê³¼ ì—­í• ì— ë”°ë¼ í†µì‹  ì˜¤ë¸Œì íŠ¸ ì •ë¦¬
         if (Managers.Instance.role == Role.Client)
         {
             TCPServerObj.SetActive(false);
             UDPServerObj.SetActive(false);
         }
-        if (Managers.Instance.protocol == Protocol.TCP)       // ¾Õ¼­ TCP¸¦ ¼±ÅÃÇßÀ¸¸é,
+        if (Managers.Instance.protocol == Protocol.TCP)       // ì•ì„œ TCPë¥¼ ì„ íƒí–ˆìœ¼ë©´,
         {
             UDPServerObj.SetActive(false);
             UDPClientObj.SetActive(false);
         }
-        if (Managers.Instance.protocol == Protocol.UDP)      // ¾Õ¼­ UDP¸¦ ¼±ÅÃÇßÀ¸¸é,
+        if (Managers.Instance.protocol == Protocol.UDP)      // ì•ì„œ UDPë¥¼ ì„ íƒí–ˆìœ¼ë©´,
         {
             TCPServerObj.SetActive(false);
             TCPClientObj.SetActive(false);
@@ -67,7 +67,7 @@ public class UI_Lobby : UI_Scene
         }
 
         // TODO
-        // UDP ¹öÀüµµ ¸¸µéÀÚ
+        // UDP ë²„ì „ë„ ë§Œë“¤ì
         #endregion
 
         return true;

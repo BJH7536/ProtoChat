@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/Assets/Scripts/Editor/ChatEditor.cs" charset="x-windows-949" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts/UI/Notification.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts/UI/Popup/Popup_Chat/UI_ChatPopup.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts/UI/Scene/UI_IntToServer.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts/UI/Scene/UI_Lobby.cs" charset="UTF-8" />
+    <file url="PROJECT" charset="x-windows-949" />
+  </component>
+</project>

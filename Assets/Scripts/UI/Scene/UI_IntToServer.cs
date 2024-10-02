@@ -21,7 +21,7 @@ public class UI_IntToServer : UI_Scene
             return false;
 
         // TODO
-        // ¼­¹ö Æ÷Æ®¸¦ Àâ°í ´ÙÀ½¾ÀÀ¸·Î ³Ñ±ä´Ù
+        // ì„œë²„ í¬íŠ¸ë¥¼ ì¡ê³  ë‹¤ìŒì”¬ìœ¼ë¡œ ë„˜ê¸´ë‹¤
         BindButton(typeof(Button));
         BindInputField(typeof(TMP_InputField));
 

@@ -5,37 +5,28 @@ using UnityEngine;
 
 public class Notification : MonoBehaviour
 {
-    TextMeshProUGUI text;
+    public TextMeshProUGUI text;
     public string context = "[this is notification]";
 
     void Start()
     {
-        text = GetComponent<TextMeshProUGUI>();
+        text = GetComponentInChildren<TextMeshProUGUI>();
         text.text = context;
         StartCoroutine(FadeTextToZero());
     }
 
-    public IEnumerator FadeTextToZero()  // ¾ËÆÄ°ª 1¿¡¼­ 0À¸·Î ÀüÈ¯
+    public IEnumerator FadeTextToZero()  // ì•ŒíŒŒê°’ 1ì—ì„œ 0ìœ¼ë¡œ ì „í™˜
     {
+        yield return new WaitForSecondsRealtime(1.0f);
+        
         text.color = new Color(text.color.r, text.color.g, text.color.b, 1);
         while (text.color.a > 0.0f)
         {
             text.color = new Color(text.color.r, text.color.g, text.color.b, text.color.a - (Time.deltaTime / 2.0f));
             yield return null;
         }
-        //StartCoroutine(FadeTextToFullAlpha());
+
         Destroy(gameObject);
     }
-
-    //public IEnumerator FadeTextToFullAlpha() // ¾ËÆÄ°ª 0¿¡¼­ 1·Î ÀüÈ¯
-    //{
-    //    text.color = new Color(text.color.r, text.color.g, text.color.b, 0);
-    //    while (text.color.a < 1.0f)
-    //    {
-    //        text.color = new Color(text.color.r, text.color.g, text.color.b, text.color.a + (Time.deltaTime / 2.0f));
-    //        yield return null;
-    //    }
-    //    StartCoroutine(FadeTextToZero());
-    //}
-
+    
 }

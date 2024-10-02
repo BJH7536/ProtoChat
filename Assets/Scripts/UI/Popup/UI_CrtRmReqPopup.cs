@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.UI;
-
-class UI_CrtRmReqPopup : UI_Popup
+﻿class UI_CrtRmReqPopup : UI_Popup
 {
     enum TMP_InputField
     {
@@ -41,8 +33,15 @@ class UI_CrtRmReqPopup : UI_Popup
 
     public void SendCreateRoomReq()
     {
-        string RoomName = GetInputField((int)TMP_InputField.NameInputField).text;
-        string MaxMem = GetInputField((int)TMP_InputField.MaxMemInputField).text;
+        string RoomName = GetInputField((int)TMP_InputField.NameInputField).text.Trim();
+        string MaxMem = GetInputField((int)TMP_InputField.MaxMemInputField).text.Trim();
+
+        if (string.IsNullOrEmpty(RoomName) || string.IsNullOrEmpty(MaxMem))
+        {
+            TCPClient.instance.ShowNoti("방을 만들 수 없습니다.");
+            return;
+        }
+        
         TCPClient.instance.SendCreateRoomReq(RoomName, MaxMem);
         Destroy(gameObject);
     }

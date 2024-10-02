@@ -1,11 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Resources;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using static Define;
 
 public class Managers : MonoBehaviour
 {
@@ -32,6 +25,7 @@ public class Managers : MonoBehaviour
         role = Define.Role.unknown;
         protocol = Define.Protocol.unknown;
         Init();
+        Application.targetFrameRate = 60;
     }
 
     private static void Init()
@@ -44,8 +38,6 @@ public class Managers : MonoBehaviour
 
             s_instance = Utils.GetOrAddComponent<Managers>(go);
             DontDestroyOnLoad(go);
-
-            Application.targetFrameRate = 60;
         }
     }
 }

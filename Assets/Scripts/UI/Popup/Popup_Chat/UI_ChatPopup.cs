@@ -1,15 +1,10 @@
-using Ookii.Dialogs;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UI_ChatPopup : UI_Popup
 {
-    //public Vector3 initPos;
     public GameObject ChatManager;
     ChatManager chatManager;
 
@@ -17,7 +12,7 @@ public class UI_ChatPopup : UI_Popup
     public string roomName;
 
     GameObject mediaPanel;
-    VistaOpenFileDialog OpenDialog;
+    OpenFileDialog openFileDialog;
     Stream openStream;
 
     byte[] byteTexture;
@@ -39,14 +34,10 @@ public class UI_ChatPopup : UI_Popup
         if (base.Init() == false)
             return false;
 
-        //initPos = gameObject.GetComponent<RectTransform>().anchoredPosition;
-        //Debug.Log(initPos);
-
-        if(roomImage != null)
+        if (roomImage != null)
             roomName = roomImage.roomName;
 
         chatManager = ChatManager.GetComponent<ChatManager>();
-        setDialog();
 
         BindInputField(typeof(TMP_InputField));
         BindButton(typeof(Buttons));
@@ -56,15 +47,13 @@ public class UI_ChatPopup : UI_Popup
         GetButton((int)Buttons.Close).gameObject.BindEvent(close);
 
         return true;
-
     }
 
     public void send()
     {
-        if(TCPClient.instance.ImageLoaded)
+        if (TCPClient.instance.ImageLoaded)
         {
-            // TODO
-            // ÀÌ¹ÌÁö Àü¼Û
+            // ì´ë¯¸ì§€ ì „ì†¡
             TCPClient.instance.SendImage(roomName, byteTexture);
 
             Destroy(mediaPanel);
@@ -83,14 +72,15 @@ public class UI_ChatPopup : UI_Popup
 
     public void media()
     {
-        if(mediaPanel != null)
+        if (mediaPanel != null)
             Destroy(mediaPanel);
+
         mediaPanel = Managers.Resource.Instantiate("UI/inChatPopup/ImageLoadPanel", transform);
         Image image = mediaPanel.transform.Find("Image").GetComponent<Image>();
 
         accessToFile(image);
 
-        if (image != null)
+        if (image != null && !string.IsNullOrEmpty(TCPClient.instance.LoadedImage))
             TCPClient.instance.ImageLoaded = true;
     }
 
@@ -100,41 +90,29 @@ public class UI_ChatPopup : UI_Popup
         DestroyImmediate(gameObject);
     }
 
-    #region ÀÌ¹ÌÁö Àü¼Û °ü·Ã ÄÚµå
-    public void setDialog()
-    {
-        OpenDialog = new VistaOpenFileDialog();
-        OpenDialog.Filter = "jpg files (*.jpg) |*.jpg|png files (*.png) |*.jpg|All files  (*.*)|*.*";
-        OpenDialog.FilterIndex = 3;
-        OpenDialog.Title = "ÆÄÀÏ Ã·ºÎ";
-    }
+    #region ì´ë¯¸ì§€ ì „ì†¡ ê´€ë ¨ ì½”ë“œ
 
     public void accessToFile(Image image)
     {
-        string fileName = FileOpen();
-
-        TCPClient.instance.LoadedImage = fileName;
-
-        byteTexture = System.IO.File.ReadAllBytes(fileName);
-
-        if (!string.IsNullOrEmpty(fileName))
+        openFileDialog = new OpenFileDialog
         {
+            Filter = "Image files (*.png;*.jpg)|*.png;*.jpg|All files (*.*)|*.*",
+            FilterIndex = 1,
+            Title = "ì´ë¯¸ì§€ íŒŒì¼ ì„ íƒ"
+        };
+
+        if (openFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            string fileName = openFileDialog.FileName;
+            TCPClient.instance.LoadedImage = fileName;
+
+            byteTexture = File.ReadAllBytes(fileName);
             MakeImageFromBytes(image, byteTexture);
         }
-
-    }
-
-    public string FileOpen()
-    {
-        if (OpenDialog.ShowDialog() == DialogResult.OK)
+        else
         {
-            if ((openStream = OpenDialog.OpenFile()) != null)
-            {
-                openStream.Close();
-                return OpenDialog.FileName;
-            }
+            Destroy(mediaPanel); // íŒŒì¼ ì„ íƒì´ ì·¨ì†Œë˜ì—ˆì„ ê²½ìš° ë¯¸ë””ì–´ íŒ¨ë„ ì œê±°
         }
-        return null;
     }
 
     void MakeImageFromBytes(Image image, byte[] byteTexture)
@@ -147,5 +125,5 @@ public class UI_ChatPopup : UI_Popup
         image.sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
     }
 
-    #endregion ÀÌ¹ÌÁö Àü¼Û °ü·Ã ÄÚµå
+    #endregion ì´ë¯¸ì§€ ì „ì†¡ ê´€ë ¨ ì½”ë“œ
 }
